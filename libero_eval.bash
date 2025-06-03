@@ -3,7 +3,7 @@
 #SBATCH --partition=kira-lab
 #SBATCH --qos=long
 #SBATCH --gres=gpu:a40:8
-#SBATCH --cpus-per-task=12
+#SBATCH --cpus-per-gpu=12
 #SBATCH --nodes=1
 #SBATCH --exclude=voltron
 #SBATCH --output=libero_run.out

@@ -543,6 +543,30 @@ _CONFIGS = [
         num_train_steps=30_000,
     ),
     TrainConfig(
+        name="pi0_fast_libero_reproduce",
+        # Here is an example of loading a pi0-FAST model for full finetuning.
+        # Modify action_dim and action_horizon to match your dataset (action horizon is equal to
+        # the desired action chunk length).
+        # The max_token_len is the maximum number of (non-image) tokens the model can handle.
+        # This includes the tokenized prompt, proprioceptive state, and (FAST-tokenized) action tokens.
+        # Choosing this value too small may chop off tokens at the end of your sequence (the code will throw
+        # a warning), while choosing it too large will waste memory (since we pad each batch element to the
+        # max_token_len). A good rule of thumb is to use approx 180 for single-arm robots, and approx 250 for
+        # two-arm robots. Generally, err on the lower side here first, and potentially increase the value if
+        # you see many warnings being thrown during training.
+        model=pi0_fast.Pi0FASTConfig(action_dim=7, action_horizon=10, max_token_len=180),
+        data=LeRobotLiberoDataConfig(
+            repo_id="jcoholich/libero",
+            base_config=DataConfig(prompt_from_task=True),
+        ),
+        # Note that we load the pi0-FAST base model checkpoint here.
+        weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_fast_base/params"),
+        num_train_steps=30_000,
+        batch_size=8,  # Use a smaller size b/c a40 is smaller than a100.
+        fsdp_devices=4,  # Use FSDP to reduce memory usage.
+        num_workers=4,  # Use more workers to speed up data loading.
+    ),
+    TrainConfig(
         name="pi0_fast_libero_low_mem_finetune",
         # Here is an example of loading a pi0-FAST model for LoRA finetuning.
         # For setting action_dim, action_horizon, and max_token_len, see the comments above.
