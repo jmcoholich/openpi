@@ -106,8 +106,9 @@ class FASTTokenizer:
 
     def extract_actions(self, tokens: np.ndarray, action_horizon: int, action_dim: int) -> np.ndarray:
         # Decode predicted output tokens
+        print("Extracting actions from tokens:", tokens)
         decoded_tokens = self._paligemma_tokenizer.decode(tokens.tolist())
-
+        # print("Decoded tokens:", decoded_tokens)
         # Extract actions from FAST model outputs
         if "Action: " not in decoded_tokens:
             return np.zeros((action_horizon, action_dim), dtype=np.float32)
@@ -116,10 +117,14 @@ class FASTTokenizer:
         raw_action_tokens = np.array(
             self._paligemma_tokenizer.encode(decoded_tokens.split("Action: ")[1].split("|")[0].strip())
         )
+        print("Raw action tokens:", raw_action_tokens)
         action_tokens = self._act_tokens_to_paligemma_tokens(raw_action_tokens)
-        return self._fast_tokenizer.decode(
+        print("Mapped paligemma tokens:", action_tokens)
+        output = self._fast_tokenizer.decode(
             [action_tokens.tolist()], time_horizon=action_horizon, action_dim=action_dim
         )[0]
+        # print("Extracted actions:", output)
+        return output
 
     def _act_tokens_to_paligemma_tokens(self, tokens: np.ndarray | list[int]) -> np.ndarray:
         if isinstance(tokens, list):
