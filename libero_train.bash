@@ -5,7 +5,7 @@
 #SBATCH --gres=gpu:a40:8
 #SBATCH --cpus-per-gpu=12
 #SBATCH --nodes=1
-#SBATCH --exclude=voltron
+#SBATCH --exclude=voltron,ig-88
 #SBATCH --output=libero_training.out
 #SBATCH --error=libero_training.err
 
